@@ -15,7 +15,14 @@ public class HealthBarComponent extends Component {
 
         // 创建血条的图形
         Rectangle background = new Rectangle(100, 10, Color.BLACK);
+        //居中
+        background.setTranslateX(-background.getWidth() / 2);
+        background.setTranslateY(-background.getHeight() / 2);
+
         healthBar = new Rectangle(100, 10, Color.GREEN);
+        //居中
+        healthBar.setTranslateX(-healthBar.getWidth() / 2);
+        healthBar.setTranslateY(-healthBar.getHeight() / 2);
 
         // 将血条和背景放置在一个 Group 中
         Group healthBarGroup = new Group(background, healthBar);
@@ -24,8 +31,7 @@ public class HealthBarComponent extends Component {
         entity.getViewComponent().addChild(healthBarGroup);
 
         // 将血条 Group 设置在玩家实体的上方
-        healthBarGroup.setLayoutX(-50); // 调整 X 坐标，使其居中
-        healthBarGroup.setLayoutY(-30); // 调整 Y 坐标，使其位于玩家实体的上方
+        healthBarGroup.setLayoutY(-((entity.getViewComponent().getEntity().getHeight() / 2) + 10) ); // 调整 Y 坐标，使其位于玩家实体的上方
     }
 
     @Override

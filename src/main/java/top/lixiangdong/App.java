@@ -4,6 +4,7 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.*;
+import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.input.UserAction;
@@ -13,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import top.lixiangdong.component.FireComponent;
 import top.lixiangdong.component.HealthBarComponent;
 import top.lixiangdong.component.HealthComponent;
 import top.lixiangdong.component.MovementComponent;
@@ -38,31 +40,50 @@ public class App extends GameApplication {
     @Override
     protected void initInput() {
         Input input = getInput();
+        int width = getSettings().getWidth();
+        int height = getSettings().getHeight();
+
 
         input.addAction(new UserAction("Move Right") {
             @Override
             protected void onAction() {
-                player.translateX(5); // move right
+                double playerWidth = player.getBoundingBoxComponent().getWidth();
+                double newX = player.getX() + 5;
+                if (newX + playerWidth / 2 <= width) {
+                    player.translateX(5); // move right
+                }
             }
         }, KeyCode.D);
 
         input.addAction(new UserAction("Move Left") {
             @Override
             protected void onAction() {
-                player.translateX(-5); // move left
+                double playerWidth = player.getBoundingBoxComponent().getWidth();
+                double newX = player.getX() - 5;
+                if (newX - playerWidth / 2 >= 0) {
+                    player.translateX(-5); // move left
+                }
             }
         }, KeyCode.A);
         input.addAction(new UserAction("Move Up") {
             @Override
             protected void onAction() {
-                player.translateY(-5); // move up
+                double playerHeight = player.getBoundingBoxComponent().getHeight();
+                double newY = player.getY() - 5;
+                if (newY - playerHeight / 2 >= 0) {
+                    player.translateY(-5); // move up
+                }
             }
         }, KeyCode.W);
 
         input.addAction(new UserAction("Move Down") {
             @Override
             protected void onAction() {
-                player.translateY(5); // move down
+                double playerHeight = player.getBoundingBoxComponent().getHeight();
+                double newY = player.getY() + 5;
+                if (newY + playerHeight / 2 <= height) {
+                    player.translateY(5); // move down
+                }
             }
         }, KeyCode.S);
     }
@@ -71,27 +92,15 @@ public class App extends GameApplication {
     protected void initGame() {
         GameWorld world = getGameWorld();
         world.addEntityFactory(new Factory());
-        player = world.spawn("player", 100, 100);
-        world.spawn("boss", 200, 200);
+        int height = getSettings().getHeight();
+        int width = getSettings().getWidth();
+        player = world.spawn("player", width * 0.5, height * 0.75);
 
-        getGameTimer().runAtInterval(this::spawnBullets, Duration.seconds(1.0));
-    }
-
-    private void spawnBullets() {
-        Entity boss = getGameWorld().getEntitiesByType(EntityType.BOSS).get(0);
-        double bossX = boss.getX();
-        double bossY = boss.getY();
-
-        // 生成多方向的弹幕
-        for (int i = 0; i < 8; i++) {
-            double angle = i * 45; // 每个方向间隔45度
-            getGameWorld().spawn("bullet", new SpawnData(bossX, bossY).put("speed", 200D).put("angle", angle));
-        }
     }
 
     @Override
     protected void initPhysics() {
-        getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.BOSS) {
+        getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER, EntityType.BULLET) {
             @Override
             protected void onCollisionBegin(Entity player, Entity wall) {
                 player.getComponent(HealthComponent.class).changeHealth(-10);
@@ -109,33 +118,31 @@ public class App extends GameApplication {
     }
 
     public enum EntityType {
-        PLAYER, BOSS, BULLET
+        PLAYER, BULLET
     }
 
     public static class Factory implements EntityFactory {
         @Spawns("player")
         public Entity newPlayer(SpawnData data) {
+            Rectangle playerView = new Rectangle(40, 40, Color.BLUE);
+            playerView.setTranslateX(-playerView.getWidth() / 2);
+            playerView.setTranslateY(-playerView.getHeight() / 2);
             return FXGL.entityBuilder(data)
                     .type(EntityType.PLAYER)
-                    .viewWithBBox(new Rectangle(40, 40, Color.BLUE))
+                    .viewWithBBox(playerView)
                     .with(new CollidableComponent(true))
                     .with(new HealthComponent(100))
                     .with(new HealthBarComponent())
+                    .with(new FireComponent(700D,270D))
                     .build();
-        }
-
-        @Spawns("boss")
-        public Entity newBoss(SpawnData data) {
-            return FXGL.entityBuilder(data)
-                    .type(EntityType.BOSS)
-                    .viewWithBBox(new Rectangle(40, 40, Color.RED))
-                    .with(new CollidableComponent(true))
-                    .build();
-
         }
 
         @Spawns("bullet")
         public Entity newBullet(SpawnData data) {
+            Circle playerView = new Circle(10, Color.ORANGE);
+            playerView.setTranslateX(-playerView.getRadius() / 2);
+            playerView.setTranslateY(-playerView.getRadius() / 2);
+
             double speed = data.get("speed");
             double angle = data.get("angle");
             return FXGL.entityBuilder(data)
