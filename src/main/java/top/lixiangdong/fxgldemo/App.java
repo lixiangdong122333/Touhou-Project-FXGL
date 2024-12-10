@@ -1,10 +1,9 @@
-package top.lixiangdong;
+package top.lixiangdong.fxgldemo;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.*;
-import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.input.UserAction;
@@ -13,11 +12,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
-import top.lixiangdong.component.FireComponent;
-import top.lixiangdong.component.HealthBarComponent;
-import top.lixiangdong.component.HealthComponent;
-import top.lixiangdong.component.MovementComponent;
+import top.lixiangdong.fxgldemo.component.FireComponent;
+import top.lixiangdong.fxgldemo.component.HealthBarComponent;
+import top.lixiangdong.fxgldemo.component.HealthComponent;
+import top.lixiangdong.fxgldemo.component.MovementComponent;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 

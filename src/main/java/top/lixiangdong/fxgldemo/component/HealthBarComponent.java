@@ -1,4 +1,4 @@
-package top.lixiangdong.component;
+package top.lixiangdong.fxgldemo.component;
 
 import com.almasb.fxgl.entity.component.Component;
 import javafx.scene.Group;
